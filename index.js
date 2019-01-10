@@ -2,10 +2,14 @@
 
 const [,, ...args] = process.argv;
 
-// const args = ['raspberry-compose', 'raspberry-compose.yml'];
-
 (async () => {
-    if (args[0] && args[1]) {
+    if (!process.env.PORTAINER_URL) {
+        console.error('Missing the "PORTAINER_URL" environment variable');
+    } else if (!process.env.PORTAINER_USERNAME) {
+        console.error('Missing the "PORTAINER_USERNAME" environment variable');
+    } else if (!process.env.PORTAINER_PASSWORD) {
+        console.error('Missing the "PORTAINER_PASSWORD" environment variable');
+    } else if (args[0] && args[1]) {
         const Updater = require('./lib/Updater');
 
         try {

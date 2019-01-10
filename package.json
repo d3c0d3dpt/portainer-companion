@@ -1,6 +1,6 @@
 {
   "name": "portainer-companion",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tool to assist on Portainer stack updates",
   "main": "index.js",
   "bin": {
