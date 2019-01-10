@@ -1,0 +1,37 @@
+{
+  "name": "portainer-companion",
+  "version": "1.0.0",
+  "description": "Tool to assist on Portainer stack updates",
+  "main": "index.js",
+  "bin": {
+    "portainer-companion": "./index.js"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "dependencies": {
+    "portainer-api-client": "0.0.2"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "~10.15.0",
+    "npm": "~6.4.1"
+  },
+  "scripts": {
+    "lint": "eslint --ext .js lib",
+    "test": "jest",
+    "test-coverage": "jest --coverage",
+    "test-coverage-summary": "jest --ci --coverage --coverageReporters='text-summary'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/d3c0d3d/portainer-companion.git"
+  },
+  "author": "d3c0d3dpt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/d3c0d3d/portainer-companion/issues"
+  },
+  "homepage": "https://gitlab.com/d3c0d3d/portainer-companion#readme"
+}

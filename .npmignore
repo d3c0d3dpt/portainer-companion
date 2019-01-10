@@ -1,0 +1,7 @@
+.drone*
+.eslint*
+Docker*
+jest*
+
+.idea/
+tests/
