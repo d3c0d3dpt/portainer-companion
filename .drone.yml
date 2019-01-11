@@ -2,6 +2,17 @@ kind: pipeline
 name: build and deploy
 
 steps:
+  - name: pack-npm-package
+    image: node:10-alpine
+
+    commands:
+      - npm pack
+
+    when:
+      event:
+        exclude:
+          - tag
+
   - name: build-docker-image
     image: docker:stable
 
@@ -17,39 +28,6 @@ steps:
         exclude:
           - tag
 
-  - name: pack-npm-package
-    image: node:10-alpine
-
-    commands:
-      - npm pack
-
-    when:
-      event:
-        exclude:
-          - tag
-
-  - name: publish-docker-image
-    image: docker:stable
-
-    commands:
-      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-      - docker build -t d3c0d3dpt/portainer-companion:${DRONE_TAG}${DRONE_BRANCH} --pull .
-      - docker push d3c0d3dpt/portainer-companion:${DRONE_TAG}${DRONE_BRANCH}
-
-    environment:
-      DOCKER_USERNAME:
-        from_secret: docker_username
-      DOCKER_PASSWORD:
-        from_secret: docker_password
-
-    volumes:
-      - name: docker
-        path: "/var/run/docker.sock"
-
-    when:
-      event:
-        - tag
-
   - name: publish-npm-package
     image: node:10-alpine
 
@@ -60,6 +38,29 @@ steps:
     environment:
       NPM_TOKEN:
         from_secret: npm_token
+
+    when:
+      event:
+        - tag
+
+  - name: publish-docker-image
+    image: docker:stable
+
+    commands:
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - docker build -t d3c0d3dpt/portainer-companion:${DRONE_TAG}${DRONE_BRANCH} -t d3c0d3dpt/portainer-companion:latest --pull --no-cache .
+      - docker push d3c0d3dpt/portainer-companion:${DRONE_TAG}${DRONE_BRANCH}
+      - docker push d3c0d3dpt/portainer-companion:latest
+
+    environment:
+      DOCKER_USERNAME:
+        from_secret: docker_username
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+
+    volumes:
+      - name: docker
+        path: "/var/run/docker.sock"
 
     when:
       event:
