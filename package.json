@@ -1,6 +1,6 @@
 {
   "name": "portainer-companion",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Tool to assist on Portainer stack updates",
   "main": "index.js",
   "bin": {
@@ -26,12 +26,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/d3c0d3d/portainer-companion.git"
+    "url": "git+https://github.com/d3c0d3dpt/portainer-companion.git"
   },
   "author": "d3c0d3dpt",
   "license": "ISC",
   "bugs": {
-    "url": "https://gitlab.com/d3c0d3d/portainer-companion/issues"
+    "url": "https://github.com/d3c0d3dpt/portainer-companion/issues"
   },
-  "homepage": "https://gitlab.com/d3c0d3d/portainer-companion#readme"
+  "homepage": "https://github.com/d3c0d3dpt/portainer-companion#readme"
 }
