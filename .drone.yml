@@ -1,5 +1,9 @@
 kind: pipeline
-name: build and deploy
+name: build and deploy (amd64)
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
   - name: pack-npm-package
@@ -71,3 +75,54 @@ volumes:
     host:
       path: "/var/run/docker.sock"
 
+---
+kind: pipeline
+name: build and deploy (arm)
+
+platform:
+  os: linux
+  arch: arm
+
+steps:
+  - name: build-docker-image
+    image: docker:stable
+
+    commands:
+      - docker build --pull .
+
+    volumes:
+      - name: docker
+        path: "/var/run/docker.sock"
+
+    when:
+      event:
+        exclude:
+          - tag
+
+  - name: publish-docker-image
+    image: docker:stable
+
+    commands:
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - docker build -t d3c0d3dpt/portainer-companion:${DRONE_TAG}${DRONE_BRANCH} -t d3c0d3dpt/portainer-companion:latest --pull --no-cache .
+      - docker push d3c0d3dpt/portainer-companion:${DRONE_TAG}${DRONE_BRANCH}
+      - docker push d3c0d3dpt/portainer-companion:latest
+
+    environment:
+      DOCKER_USERNAME:
+        from_secret: docker_username
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+
+    volumes:
+      - name: docker
+        path: "/var/run/docker.sock"
+
+    when:
+      event:
+        - tag
+
+volumes:
+  - name: docker
+    host:
+      path: "/var/run/docker.sock"
