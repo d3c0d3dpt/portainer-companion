@@ -2,6 +2,8 @@
 
 const [,, ...args] = process.argv;
 
+process.env.ALWAYS_UPDATE = process.env.ALWAYS_UPDATE || args[2] === 'true';
+
 (async () => {
     if (!process.env.PORTAINER_URL) {
         console.error('Missing the "PORTAINER_URL" environment variable');
