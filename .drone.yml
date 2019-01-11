@@ -1,5 +1,5 @@
 kind: pipeline
-name: default
+name: build and deploy
 
 steps:
   - name: build-docker-image
