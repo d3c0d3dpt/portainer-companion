@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2019-01-11
 ### Added
-- Possibility to force update even is stack hasn't changed.
+- Possibility to force update even if stack hasn't changed.
 
 ## [1.0.1] - 2019-01-10
 ### Added
