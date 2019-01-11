@@ -6,32 +6,6 @@ platform:
   arch: amd64
 
 steps:
-  - name: pack-npm-package
-    image: node:10-alpine
-
-    commands:
-      - npm pack
-
-    when:
-      event:
-        exclude:
-          - tag
-
-  - name: build-docker-image
-    image: docker:stable
-
-    commands:
-      - docker build --pull .
-
-    volumes:
-      - name: docker
-        path: "/var/run/docker.sock"
-
-    when:
-      event:
-        exclude:
-          - tag
-
   - name: publish-npm-package
     image: node:10-alpine
 
@@ -42,10 +16,6 @@ steps:
     environment:
       NPM_TOKEN:
         from_secret: npm_token
-
-    when:
-      event:
-        - tag
 
   - name: publish-docker-image
     image: docker:stable
@@ -65,10 +35,6 @@ steps:
     volumes:
       - name: docker
         path: "/var/run/docker.sock"
-
-    when:
-      event:
-        - tag
 
 volumes:
   - name: docker
@@ -84,21 +50,6 @@ platform:
   arch: arm
 
 steps:
-  - name: build-docker-image
-    image: docker:stable
-
-    commands:
-      - docker build --pull .
-
-    volumes:
-      - name: docker
-        path: "/var/run/docker.sock"
-
-    when:
-      event:
-        exclude:
-          - tag
-
   - name: publish-docker-image
     image: docker:stable
 
@@ -117,10 +68,6 @@ steps:
     volumes:
       - name: docker
         path: "/var/run/docker.sock"
-
-    when:
-      event:
-        - tag
 
 volumes:
   - name: docker
