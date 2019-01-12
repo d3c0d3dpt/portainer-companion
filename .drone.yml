@@ -6,12 +6,6 @@ platform:
   arch: amd64
 
 steps:
-  - name: test
-    image: docker:stable
-
-    commands:
-      - ls -lah
-
   - name: publish-npm-package
     image: node:10-alpine
 
