@@ -11,6 +11,7 @@ steps:
 
     commands:
       - ls -lah
+      - ls -lah .ci/
 
   - name: publish-npm-package
     image: node:10-alpine
