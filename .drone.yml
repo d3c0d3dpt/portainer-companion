@@ -17,6 +17,10 @@ steps:
       NPM_TOKEN:
         from_secret: npm_token
 
+    when:
+      event:
+        - tag
+
   - name: publish-docker-image
     image: docker:stable
 
@@ -35,6 +39,10 @@ steps:
     volumes:
       - name: docker
         path: "/var/run/docker.sock"
+
+    when:
+      event:
+        - tag
 
 volumes:
   - name: docker
@@ -68,6 +76,10 @@ steps:
     volumes:
       - name: docker
         path: "/var/run/docker.sock"
+
+    when:
+      event:
+        - tag
 
 volumes:
   - name: docker
