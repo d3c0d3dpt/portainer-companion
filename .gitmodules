@@ -1,3 +1,0 @@
-[submodule ".ci"]
-	path = .ci
-	url = git@github.com:d3c0d3dpt/portainer-companion-ci.git
