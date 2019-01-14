@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+const [,, ...args] = process.argv;
+
+(async () => {
+    const Updater = require('../lib/Updater');
+
+    try {
+        Updater.verifyRequiredVariables();
+
+        if (await Updater.updateStack(...args)) {
+            console.log(`Stack "${args[0]}" updated`);
+        } else {
+            console.log(`Stack "${args[0]}" did not change`);
+        }
+    } catch (err) {
+        console.error(err);
+
+        process.exit(1);
+    }
+})();
