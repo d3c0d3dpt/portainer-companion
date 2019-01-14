@@ -10,7 +10,7 @@ Define the following environment variables to configure Portainer connection:
 * `PORTAINER_PASSWORD`: Username for Portainer password.
 
 Use the following environment variables for behavior configuration
-* `ALWAYS_UPDATE`: Update Portainer stack even if stack definition hasn't changed (defaults to `false`).
+* `FORCE_UPDATE`: Update Portainer stack even if stack definition hasn't changed (defaults to `false`).
 
 ## Installation (suggested)
 
