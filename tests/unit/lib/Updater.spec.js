@@ -9,10 +9,10 @@ describe('lib/Updater.js', () => {
         afterAll(deleteForceUpdate);
 
         test.each([
-            [ 'True when "true" (as string)', 'true', true ],
-            [ 'False when "true" (as boolean)', true, false ],
-            [ 'False when "false" (as string)', 'false', false ],
+            [ 'False when "true" (as boolean)', true, true ],
+            [ 'True when "true" (as string)', 'true', false ],
             [ 'False when "false" (as boolean)', false, false ],
+            [ 'False when "false" (as string)', 'false', false ],
             [ 'False when random string is given', 'totally random string', false ],
             [ 'False when random integer is given', 1234567890, false ]
         ])('%s is given', (name, value, expectedResult) => {
@@ -49,11 +49,11 @@ describe('lib/Updater.js', () => {
         });
 
         test('Throws an error if empty string is given', () => {
-            expect(call('')).toThrow('Invalid #stack_definition_file#');
+            expect(call('')).toThrow('Invalid <stack_file>');
         });
 
         test('Throws an error if nothing is given', () => {
-            expect(call(undefined)).toThrow('Invalid #stack_definition_file#');
+            expect(call(undefined)).toThrow('Invalid <stack_file>');
         });
     });
 
@@ -67,11 +67,11 @@ describe('lib/Updater.js', () => {
         });
 
         test('Throws an error if empty string is given', () => {
-            expect(call('')).toThrow('Invalid #stack_name#');
+            expect(call('')).toThrow('Invalid <stack_name>');
         });
 
         test('Throws an error if nothing is given', () => {
-            expect(call(undefined)).toThrow('Invalid #stack_name#');
+            expect(call(undefined)).toThrow('Invalid <stack_name>');
         });
     });
 

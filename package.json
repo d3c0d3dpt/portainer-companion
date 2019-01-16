@@ -1,6 +1,6 @@
 {
   "name": "portainer-companion",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Tool to assist on Portainer stack updates",
   "main": "bin/companion",
   "bin": {
@@ -12,6 +12,7 @@
     "test": "tests"
   },
   "dependencies": {
+    "commander": "^2.19.0",
     "portainer-api-client": "0.0.2"
   },
   "devDependencies": {
