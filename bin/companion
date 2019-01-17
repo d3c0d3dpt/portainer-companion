@@ -14,7 +14,7 @@ let handler = fn => async (...args) => {
 
 commander.command('update-stack-definition <stack_name> <stack_file>').alias('usd')
     .description('Update a stack definition on Portainer')
-    .option('-f, --force', 'force update.')
+    .option('-f, --force', 'force update')
     .action(handler(require('../lib/commands/UpdateStackDefinition')));
 
 commander.command('update-stack-variable <stack_name> <variable_name> [<variable_value>]').alias('usv')
