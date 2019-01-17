@@ -2,33 +2,23 @@
 
 let commander = require('commander');
 
+let handler = fn => async (...args) => {
+    try {
+        console.log(await fn(...args));
+    } catch (err) {
+        console.error(err);
+
+        process.exit(1);
+    }
+};
+
 commander.command('update-stack-definition <stack_name> <stack_file>').alias('usd')
     .description('Update a stack definition on Portainer')
     .option('-f, --force', 'force update.')
-    .action(require('../lib/commands/UpdateStackDefinition'));
+    .action(handler(require('../lib/commands/UpdateStackDefinition')));
 
 commander.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
     commander.outputHelp();
 }
-
-// const [,, ...args] = process.argv;
-//
-// (async () => {
-//     const Updater = require('../lib/Updater');
-//
-//     try {
-//         Updater.verifyRequiredVariables();
-//
-//         if (await Updater.updateStack(...args)) {
-//             console.log(`Stack "${args[0]}" updated`);
-//         } else {
-//             console.log(`Stack "${args[0]}" did not change`);
-//         }
-//     } catch (err) {
-//         console.error(err);
-//
-//         process.exit(1);
-//     }
-// })();
