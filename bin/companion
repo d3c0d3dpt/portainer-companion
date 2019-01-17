@@ -17,6 +17,10 @@ commander.command('update-stack-definition <stack_name> <stack_file>').alias('us
     .option('-f, --force', 'force update.')
     .action(handler(require('../lib/commands/UpdateStackDefinition')));
 
+commander.command('update-stack-variable <stack_name> <variable_name> [<variable_value>]').alias('usv')
+    .description('Update a stack variable on Portainer')
+    .action(handler(require('../lib/commands/UpdateStackVariable')));
+
 commander.parse(process.argv);
 
 if (!process.argv.slice(2).length) {
