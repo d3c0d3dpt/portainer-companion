@@ -75,6 +75,24 @@ describe('lib/Updater.js', () => {
         });
     });
 
+    describe('validateStackVariableName()', () => {
+        let call = argument => Updater.validateStackVariableName.bind(Updater, argument);
+
+        test('Returns a string if a valid string is given', () => {
+            let string = 'test-file';
+
+            expect(Updater.validateStackVariableName(string)).toBe(string);
+        });
+
+        test('Throws an error if empty string is given', () => {
+            expect(call('')).toThrow('Invalid <variable_name>');
+        });
+
+        test('Throws an error if nothing is given', () => {
+            expect(call(undefined)).toThrow('Invalid <variable_name>');
+        });
+    });
+
     describe('async getStackByStackName()', () => {
         beforeAll(() => {
             PortainerApi.Stacks.getAllStacks = jest.fn(() => [
@@ -167,7 +185,7 @@ describe('lib/Updater.js', () => {
             expect(Updater.getStackDefinitionByFile).toHaveBeenCalled();
         });
 
-        test('Updates the stack if update is forced,e vent if definition is the same', async () => {
+        test('Updates the stack if update is forced, even if definition is the same', async () => {
             Updater.getStackByStackName = jest.fn(() => ({ Id: 1 }));
             Updater.getStackDefinitionByStackId = jest.fn(() => 'equalDefinition');
             Updater.getStackDefinitionByFile = jest.fn(() => 'equalDefinition');
@@ -181,6 +199,69 @@ describe('lib/Updater.js', () => {
 
             // Since this is only present on the second part of the if statement, it's not called
             expect(Updater.getStackDefinitionByStackId).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('async updateStack()', () => {
+        beforeAll(() => {
+            PortainerApi.Stacks.updateStack = jest.fn(() => 'called');
+
+            Updater.getStackDefinitionByStackId = jest.fn(() => 'definition');
+        });
+
+        test('Adding a variable', async () => {
+            Updater.getStackByStackName = jest.fn(() => ({ Id: 1, Env: [
+                { name: 'existing-variable', value: 'existing-value' }
+            ] }));
+
+            let result = await Updater.updateStackVariable('test-stack', 'new-variable', 'new-value');
+            expect(result).toBe('added');
+
+            expect(PortainerApi.Stacks.updateStack).toHaveBeenCalled();
+            expect(PortainerApi.Stacks.updateStack.mock.calls[0][2]).toEqual([
+                { name: 'existing-variable', value: 'existing-value' },
+                { name: 'new-variable', value: 'new-value' }
+            ]);
+        });
+
+        test('Removing a variable', async () => {
+            Updater.getStackByStackName = jest.fn(() => ({ Id: 1, Env: [
+                { name: 'existing-variable', value: 'existing-value' },
+                { name: 'extra-variable', value: 'extra-value' },
+            ] }));
+
+            let result = await Updater.updateStackVariable('test-stack', 'extra-variable');
+            expect(result).toBe('removed');
+
+            expect(PortainerApi.Stacks.updateStack).toHaveBeenCalled();
+            expect(PortainerApi.Stacks.updateStack.mock.calls[0][2]).toEqual([
+                { name: 'existing-variable', value: 'existing-value' }
+            ]);
+        });
+
+        test('Updating a variable', async () => {
+            Updater.getStackByStackName = jest.fn(() => ({ Id: 1, Env: [
+                { name: 'existing-variable', value: 'existing-value' },
+            ] }));
+
+            let result = await Updater.updateStackVariable('test-stack', 'existing-variable', 'updated-value');
+            expect(result).toBe('updated');
+
+            expect(PortainerApi.Stacks.updateStack).toHaveBeenCalled();
+            expect(PortainerApi.Stacks.updateStack.mock.calls[0][2]).toEqual([
+                { name: 'existing-variable', value: 'updated-value' }
+            ]);
+        });
+
+        test('Called without value change', async () => {
+            Updater.getStackByStackName = jest.fn(() => ({ Id: 1, Env: [
+                { name: 'existing-variable', value: 'existing-value' },
+            ] }));
+
+            let result = await Updater.updateStackVariable('test-stack', 'existing-variable', 'existing-value');
+            expect(result).toBe('did not change');
+
+            expect(PortainerApi.Stacks.updateStack).not.toHaveBeenCalled();
         });
     });
 });
