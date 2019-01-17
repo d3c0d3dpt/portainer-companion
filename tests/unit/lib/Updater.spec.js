@@ -9,10 +9,10 @@ describe('lib/Updater.js', () => {
         afterAll(deleteForceUpdate);
 
         test.each([
-            [ 'True when "true" (as string)', 'true', true ],
-            [ 'False when "true" (as boolean)', true, false ],
-            [ 'False when "false" (as string)', 'false', false ],
+            [ 'False when "true" (as boolean)', true, true ],
+            [ 'True when "true" (as string)', 'true', false ],
             [ 'False when "false" (as boolean)', false, false ],
+            [ 'False when "false" (as string)', 'false', false ],
             [ 'False when random string is given', 'totally random string', false ],
             [ 'False when random integer is given', 1234567890, false ]
         ])('%s is given', (name, value, expectedResult) => {
@@ -49,11 +49,11 @@ describe('lib/Updater.js', () => {
         });
 
         test('Throws an error if empty string is given', () => {
-            expect(call('')).toThrow('Invalid #stack_definition_file#');
+            expect(call('')).toThrow('Invalid <stack_file>');
         });
 
         test('Throws an error if nothing is given', () => {
-            expect(call(undefined)).toThrow('Invalid #stack_definition_file#');
+            expect(call(undefined)).toThrow('Invalid <stack_file>');
         });
     });
 
@@ -67,78 +67,29 @@ describe('lib/Updater.js', () => {
         });
 
         test('Throws an error if empty string is given', () => {
-            expect(call('')).toThrow('Invalid #stack_name#');
+            expect(call('')).toThrow('Invalid <stack_name>');
         });
 
         test('Throws an error if nothing is given', () => {
-            expect(call(undefined)).toThrow('Invalid #stack_name#');
+            expect(call(undefined)).toThrow('Invalid <stack_name>');
         });
     });
 
-    describe('verifyRequiredVariables()', () => {
-        beforeEach(() => {
-            delete process.env.PORTAINER_URL;
-            delete process.env.PORTAINER_USERNAME;
-            delete process.env.PORTAINER_PASSWORD;
+    describe('validateStackVariableName()', () => {
+        let call = argument => Updater.validateStackVariableName.bind(Updater, argument);
+
+        test('Returns a string if a valid string is given', () => {
+            let string = 'test-file';
+
+            expect(Updater.validateStackVariableName(string)).toBe(string);
         });
 
-        afterAll(() => {
-            process.env.PORTAINER_URL = '';
-            process.env.PORTAINER_USERNAME = '';
-            process.env.PORTAINER_PASSWORD = '';
+        test('Throws an error if empty string is given', () => {
+            expect(call('')).toThrow('Invalid <variable_name>');
         });
 
-        test('Returns nothing if variables have values', () => {
-            process.env.PORTAINER_URL = 'test';
-            process.env.PORTAINER_USERNAME = 'test';
-            process.env.PORTAINER_PASSWORD = 'test';
-
-            expect(Updater.verifyRequiredVariables()).not.toBeDefined();
-        });
-
-        test('Throws an error if PORTAINER_URL is an empty string', () => {
-            process.env.PORTAINER_URL = '';
-            process.env.PORTAINER_USERNAME = 'test';
-            process.env.PORTAINER_PASSWORD = 'test';
-
-            expect(Updater.verifyRequiredVariables).toThrow('Missing the "PORTAINER_URL" environment variable');
-        });
-
-        test('Throws an error if PORTAINER_URL is not given', () => {
-            process.env.PORTAINER_USERNAME = 'test';
-            process.env.PORTAINER_PASSWORD = 'test';
-
-            expect(Updater.verifyRequiredVariables).toThrow('Missing the "PORTAINER_URL" environment variable');
-        });
-
-        test('Throws an error if PORTAINER_USERNAME is an empty string', () => {
-            process.env.PORTAINER_URL = 'test';
-            process.env.PORTAINER_USERNAME = '';
-            process.env.PORTAINER_PASSWORD = 'test';
-
-            expect(Updater.verifyRequiredVariables).toThrow('Missing the "PORTAINER_USERNAME" environment variable');
-        });
-
-        test('Throws an error if PORTAINER_USERNAME is not given', () => {
-            process.env.PORTAINER_URL = 'test';
-            process.env.PORTAINER_PASSWORD = 'test';
-
-            expect(Updater.verifyRequiredVariables).toThrow('Missing the "PORTAINER_USERNAME" environment variable');
-        });
-
-        test('Throws an error if PORTAINER_PASSWORD is an empty string', () => {
-            process.env.PORTAINER_URL = 'test';
-            process.env.PORTAINER_USERNAME = 'test';
-            process.env.PORTAINER_PASSWORD = '';
-
-            expect(Updater.verifyRequiredVariables).toThrow('Missing the "PORTAINER_PASSWORD" environment variable');
-        });
-
-        test('Throws an error if PORTAINER_PASSWORD is not given', () => {
-            process.env.PORTAINER_URL = 'test';
-            process.env.PORTAINER_USERNAME = 'test';
-
-            expect(Updater.verifyRequiredVariables).toThrow('Missing the "PORTAINER_PASSWORD" environment variable');
+        test('Throws an error if nothing is given', () => {
+            expect(call(undefined)).toThrow('Invalid <variable_name>');
         });
     });
 
@@ -234,7 +185,7 @@ describe('lib/Updater.js', () => {
             expect(Updater.getStackDefinitionByFile).toHaveBeenCalled();
         });
 
-        test('Updates the stack if update is forced,e vent if definition is the same', async () => {
+        test('Updates the stack if update is forced, even if definition is the same', async () => {
             Updater.getStackByStackName = jest.fn(() => ({ Id: 1 }));
             Updater.getStackDefinitionByStackId = jest.fn(() => 'equalDefinition');
             Updater.getStackDefinitionByFile = jest.fn(() => 'equalDefinition');
@@ -248,6 +199,69 @@ describe('lib/Updater.js', () => {
 
             // Since this is only present on the second part of the if statement, it's not called
             expect(Updater.getStackDefinitionByStackId).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('async updateStack()', () => {
+        beforeAll(() => {
+            PortainerApi.Stacks.updateStack = jest.fn(() => 'called');
+
+            Updater.getStackDefinitionByStackId = jest.fn(() => 'definition');
+        });
+
+        test('Adding a variable', async () => {
+            Updater.getStackByStackName = jest.fn(() => ({ Id: 1, Env: [
+                { name: 'existing-variable', value: 'existing-value' }
+            ] }));
+
+            let result = await Updater.updateStackVariable('test-stack', 'new-variable', 'new-value');
+            expect(result).toBe('added');
+
+            expect(PortainerApi.Stacks.updateStack).toHaveBeenCalled();
+            expect(PortainerApi.Stacks.updateStack.mock.calls[0][2]).toEqual([
+                { name: 'existing-variable', value: 'existing-value' },
+                { name: 'new-variable', value: 'new-value' }
+            ]);
+        });
+
+        test('Removing a variable', async () => {
+            Updater.getStackByStackName = jest.fn(() => ({ Id: 1, Env: [
+                { name: 'existing-variable', value: 'existing-value' },
+                { name: 'extra-variable', value: 'extra-value' },
+            ] }));
+
+            let result = await Updater.updateStackVariable('test-stack', 'extra-variable');
+            expect(result).toBe('removed');
+
+            expect(PortainerApi.Stacks.updateStack).toHaveBeenCalled();
+            expect(PortainerApi.Stacks.updateStack.mock.calls[0][2]).toEqual([
+                { name: 'existing-variable', value: 'existing-value' }
+            ]);
+        });
+
+        test('Updating a variable', async () => {
+            Updater.getStackByStackName = jest.fn(() => ({ Id: 1, Env: [
+                { name: 'existing-variable', value: 'existing-value' },
+            ] }));
+
+            let result = await Updater.updateStackVariable('test-stack', 'existing-variable', 'updated-value');
+            expect(result).toBe('updated');
+
+            expect(PortainerApi.Stacks.updateStack).toHaveBeenCalled();
+            expect(PortainerApi.Stacks.updateStack.mock.calls[0][2]).toEqual([
+                { name: 'existing-variable', value: 'updated-value' }
+            ]);
+        });
+
+        test('Called without value change', async () => {
+            Updater.getStackByStackName = jest.fn(() => ({ Id: 1, Env: [
+                { name: 'existing-variable', value: 'existing-value' },
+            ] }));
+
+            let result = await Updater.updateStackVariable('test-stack', 'existing-variable', 'existing-value');
+            expect(result).toBe('did not change');
+
+            expect(PortainerApi.Stacks.updateStack).not.toHaveBeenCalled();
         });
     });
 });

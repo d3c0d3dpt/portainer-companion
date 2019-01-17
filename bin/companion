@@ -1,21 +1,28 @@
 #!/usr/bin/env node
 
-const [,, ...args] = process.argv;
+let commander = require('commander');
 
-(async () => {
-    const Updater = require('../lib/Updater');
-
+let handler = fn => async (...args) => {
     try {
-        Updater.verifyRequiredVariables();
-
-        if (await Updater.updateStack(...args)) {
-            console.log(`Stack "${args[0]}" updated`);
-        } else {
-            console.log(`Stack "${args[0]}" did not change`);
-        }
+        console.log(await fn(...args));
     } catch (err) {
         console.error(err);
 
         process.exit(1);
     }
-})();
+};
+
+commander.command('update-stack-definition <stack_name> <stack_file>').alias('usd')
+    .description('Update a stack definition on Portainer')
+    .option('-f, --force', 'force update')
+    .action(handler(require('../lib/commands/UpdateStackDefinition')));
+
+commander.command('update-stack-variable <stack_name> <variable_name> [<variable_value>]').alias('usv')
+    .description('Update a stack variable on Portainer')
+    .action(handler(require('../lib/commands/UpdateStackVariable')));
+
+commander.parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+    commander.outputHelp();
+}
