@@ -1,7 +1,7 @@
-FROM node:10-alpine
+FROM node:14-alpine
 
 # Install package
 RUN npm i -g portainer-companion
 
 WORKDIR /app
-ENTRYPOINT ["portainer-companion"]
+CMD ["portainer"]
